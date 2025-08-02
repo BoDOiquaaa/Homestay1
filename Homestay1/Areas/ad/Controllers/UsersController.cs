@@ -1,5 +1,4 @@
-﻿// Controllers/UsersController.cs
-using Homestay1.Data;
+﻿using Homestay1.Data;
 using Homestay1.Models.Entities;
 using Homestay1.Repositories;
 using Homestay1.ViewModels;
@@ -22,42 +21,36 @@ namespace Homestay1.Areas.ad.Controllers
         }
 
         /// <summary>
-        /// Đổ danh sách Roles từ DB vào ViewBag.Roles
+        /// Đổ danh sách Roles từ DB vào ViewBag.Roles dưới dạng SelectList
         /// </summary>
         private async Task PopulateRolesAsync()
         {
-            var roles = await _db.Roles
-                                 .OrderBy(r => r.RoleName)
-                                 .Select(r => new SelectListItem
-                                 {
-                                     Value = r.RoleID.ToString(),
-                                     Text = r.RoleName
-                                 })
-                                 .ToListAsync();
+            var allRoles = await _db.Roles
+                                    .OrderBy(r => r.RoleName)
+                                    .ToListAsync();
 
-            ViewBag.Roles = new SelectList(roles, "Value", "Text");
+            // Thiết lập SelectList: ValueField = "RoleID", TextField = "RoleName"
+            ViewBag.Roles = new SelectList(allRoles, "RoleID", "RoleName");
         }
 
         // GET: /ad/Users/Create
         public async Task<IActionResult> Create()
         {
+            // Gọi hàm chung để đổ SelectList
             await PopulateRolesAsync();
             return View(new UserViewModel());
         }
 
         // POST: /ad/Users/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserViewModel vm)
         {
-            // 1. Kiểm tra ModelState
             if (!ModelState.IsValid)
             {
                 await PopulateRolesAsync();
                 return View(vm);
             }
 
-            // 2. Kiểm tra quyền nếu cần (ví dụ chỉ RoleID 2 được thêm)
             if (vm.RoleID != 2)
             {
                 ModelState.AddModelError("RoleID", "Bạn không có quyền thêm user với vai trò này.");
@@ -65,22 +58,19 @@ namespace Homestay1.Areas.ad.Controllers
                 return View(vm);
             }
 
-            // 3. Kiểm tra trùng Email
-            bool exists = await _db.Users.AnyAsync(u => u.Email == vm.Email);
-            if (exists)
+            if (await _db.Users.AnyAsync(u => u.Email == vm.Email))
             {
                 ModelState.AddModelError("Email", "Email này đã tồn tại.");
                 await PopulateRolesAsync();
                 return View(vm);
             }
 
-            // 4. Tạo entity và lưu
             var user = new User
             {
                 RoleID = vm.RoleID,
                 FullName = vm.FullName,
                 Email = vm.Email,
-                Password = vm.Password, // nhớ hash password ở production
+                Password = vm.Password,
                 Phone = vm.Phone
             };
             await _repo.AddAsync(user);
@@ -88,19 +78,12 @@ namespace Homestay1.Areas.ad.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Index(string search)
-        {
-            ViewBag.Search = search;
-            var list = await _repo.GetAllAsync(search);
-            return View(list);
-        }
-
-       
-
+        // GET: /ad/Users/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var u = await _repo.GetByIdAsync(id);
             if (u == null) return NotFound();
+
             await PopulateRolesAsync();
             var vm = new UserViewModel
             {
@@ -113,22 +96,26 @@ namespace Homestay1.Areas.ad.Controllers
             return View(vm);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UserViewModel vm)
         {
-            if (!ModelState.IsValid) { await PopulateRolesAsync(); return View(vm); }
+            if (!ModelState.IsValid)
+            {
+                await PopulateRolesAsync();
+                return View(vm);
+            }
+
             var u = await _repo.GetByIdAsync(vm.UserID.Value);
             u.RoleID = vm.RoleID;
             u.FullName = vm.FullName;
             u.Email = vm.Email;
             u.Phone = vm.Phone;
             await _repo.UpdateAsync(u);
+
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             await _repo.DeleteAsync(id);

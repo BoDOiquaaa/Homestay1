@@ -16,4 +16,4 @@ namespace Homestay1.ViewModels
         // danh sách dropdown roles
         public IEnumerable<SelectListItem> Roles { get; set; }
     }
-}
+}   
