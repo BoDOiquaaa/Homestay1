@@ -16,7 +16,6 @@
     <Folder Include="Areas\ad\Data\" />
     <Folder Include="Areas\ad\Models\" />
     <Folder Include="Controllers\" />
-    <Folder Include="Booking\" />
   </ItemGroup>
 
 </Project>
