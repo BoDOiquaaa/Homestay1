@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Homestay1.Models.Homestay>
+@{
+    ViewData["Title"] = "Quản lý Homestays";
+    Layout = "_AdminLayout";
+}
+<h2>@ViewData["Title"]</h2>
+<form action="@Url.Action("Index", "Homestays")" method="get" class="form-inline mb-2">
+    <input type="text" name="search" value="@ViewData["CurrentFilter"]" placeholder="Tìm kiếm..." class="form-control mr-2" />
+    <button type="submit" class="btn btn-primary">Tìm</button>
+    <a href="@Url.Action("Create", "Homestays")" class="btn btn-success ml-auto">Thêm mới</a>
+</form>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Created At</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Address</td>
+                <td>@item.CreatedAt:yyyy-MM-dd</td>
+                <td>
+                    <a href="@Url.Action("Details", "Homestays", new { id = item.HomestayID })" class="btn btn-sm btn-info">Chi tiết</a>
+                    <a href="@Url.Action("Edit", "Homestays", new { id = item.HomestayID })" class="btn btn-sm btn-warning">Sửa</a>
+                    <a href="@Url.Action("Delete", "Homestays", new { id = item.HomestayID })" class="btn btn-sm btn-danger">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Confirm before deleting
+            var deleteButtons = document.querySelectorAll('a.btn-danger');
+            deleteButtons.forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    if (!confirm('Bạn có chắc muốn xóa homestay này?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+}

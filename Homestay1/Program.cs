@@ -1,6 +1,8 @@
 ﻿
 using Homestay1.Data;
 using Homestay1.Repositories;
+using Homestay1.Repository;
+using HomestayApp.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // 2. Repository DI
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+builder.Services.AddScoped<IHomestayRepository, HomestayRepository>();
 
 // 3. MVC
 builder.Services.AddControllersWithViews();
@@ -41,21 +45,19 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthorization();
 
-// 6. Routing
+
 //app.MapControllerRoute(
 //    name: "areas",
 //    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-////app.MapControllerRoute(
-////    name: "default",
-////    pattern: "{controller=Account}/{action=Login}/{id?}",
-////    defaults: new { area = "ad" });
-///
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Account}/{action=Login}/{id?}",
+//    defaults: new { area = "ad" });
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 );
-
-// 6.2 Route dành cho Areas (chỉ khi URL có area)
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"

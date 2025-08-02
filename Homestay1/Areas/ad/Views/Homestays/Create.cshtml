@@ -1,0 +1,53 @@
+﻿@model Homestay1.Models.Homestay
+@{
+    ViewData["Title"] = "Thêm Homestay";
+    Layout = "_AdminLayout";
+}
+<h2>@ViewData["Title"]</h2>
+@Html.AntiForgeryToken()
+<div id="create-container">
+    <div class="mb-3">
+        <label class="form-label">Owner ID</label>
+        <input id="ownerId" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input id="name" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Address</label>
+        <input id="address" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea id="description" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Chọn hình ảnh</label>
+        <input type="file" id="imageFile" class="form-control" accept="image/*" />
+    </div>
+    <button id="saveBtn" class="btn btn-primary">Lưu</button>
+    <a href="@Url.Action("Index", "Homestays")" class="btn btn-secondary">Hủy</a>
+</div>
+@section Scripts {
+    <script>
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        document.getElementById('saveBtn').addEventListener('click', async function() {
+            const data = new FormData();
+            data.append('OwnerID', document.getElementById('ownerId').value);
+            data.append('Name', document.getElementById('name').value);
+            data.append('Address', document.getElementById('address').value);
+            data.append('Description', document.getElementById('description').value);
+            const fileInput = document.getElementById('imageFile');
+            if (fileInput.files.length) data.append('ImageFile', fileInput.files[0]);
+            const res = await fetch('@Url.Action("Create", "Homestays")', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'RequestVerificationToken': token },
+                body: data
+            });
+            const payload = await res.json();
+            if (payload.success) window.location = payload.redirectUrl;
+            else alert('Lỗi khi lưu homestay');
+        });
+    </script>
+}
