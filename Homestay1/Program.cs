@@ -32,7 +32,7 @@ var app = builder.Build();
 // 5. Middleware
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("//Error");
     app.UseHsts();
 }
 app.UseHttpsRedirection();
@@ -42,12 +42,23 @@ app.UseSession();
 app.UseAuthorization();
 
 // 6. Routing
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Account}/{action=Login}/{id?}");
+//app.MapControllerRoute(
+//    name: "areas",
+//    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+////app.MapControllerRoute(
+////    name: "default",
+////    pattern: "{controller=Account}/{action=Login}/{id?}",
+////    defaults: new { area = "ad" });
+///
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}",
-    defaults: new { area = "ad" });
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
+
+// 6.2 Route dành cho Areas (chỉ khi URL có area)
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();
