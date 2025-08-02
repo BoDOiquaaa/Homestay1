@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Homestay1.Models.Entities.User>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý Users";
+}
+<div class="d-flex justify-content-between mb-3">
+    <h2>Danh sách Users</h2>
+    <a class="btn btn-primary" href="@Url.Action("Create", "Users")">Thêm mới</a>
+</div>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input class="form-control" name="search" placeholder="Tìm kiếm..." value="@ViewBag.Search" />
+        <button class="btn btn-outline-secondary">Tìm</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr><th>ID</th><th>Họ tên</th><th>Email</th><th>Phone</th><th>Role</th><th>Ngày tạo</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.UserID</td>
+                <td>@u.FullName</td>
+                <td>@u.Email</td>
+                <td>@u.Phone</td>
+                <td>@u.Role.RoleName</td>
+                <td>@u.CreatedAt.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@u.UserID">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@u.UserID" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Xóa user này?');">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

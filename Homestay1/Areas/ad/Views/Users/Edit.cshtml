@@ -1,0 +1,31 @@
+﻿@model Homestay1.ViewModels.UserViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Sửa User";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="UserID" />
+
+    <div class="mb-3">
+        <label asp-for="RoleID" class="form-label"></label>
+        <select asp-for="RoleID" asp-items="ViewBag.Roles" class="form-select"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="FullName" class="form-label"></label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <!-- Không cho chỉnh mật khẩu khi sửa -->
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
