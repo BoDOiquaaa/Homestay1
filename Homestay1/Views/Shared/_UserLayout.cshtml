@@ -203,7 +203,15 @@
     <div class="top-header">
         <div class="container">
             <a href="#">🇻🇳</a>
-            <a href="#">Thành viên</a>
+            <!-- Sau -->
+            <a asp-area="ad"
+               asp-controller="Account"
+               asp-action="Login">
+                Thành viên
+            </a>
+
+
+
         </div>
     </div>
 
@@ -264,10 +272,9 @@
                 <div class="col-md-2">
                     <h6>Quick Links</h6>
                     <ul>
-                        <li><a asp-page="/Hotels/Index">Hotels</a></li>
-                        <li><a asp-page="/Residences/Index">Wink Live®</a></li>
-                        <li><a asp-page="/Experience/Index">Trải nghiệm</a></li>
-                        <li><a asp-page="/Events/Index">Events</a></li>
+                        <li><a asp-page="/Hotels/Index">Phòng trống hiện có </a></li>
+                        <li><a asp-page="/Residences/Index">Chăm sóc khách hàng</a></li>
+                        <li><a asp-page="/Events/Index">Thông tin ưu đãi</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
