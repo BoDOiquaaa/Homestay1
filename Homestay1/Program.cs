@@ -15,6 +15,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IHomeRepository, HomeRepository>();
 builder.Services.AddScoped<IHomestayRepository, HomestayRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
 // 3. MVC
 builder.Services.AddControllersWithViews();
@@ -45,21 +46,21 @@ app.UseSession();
 app.UseAuthorization();
 
 
-//app.MapControllerRoute(
-//    name: "areas",
-//    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller=Account}/{action=Login}/{id?}",
-//    defaults: new { area = "ad" });
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
-);
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Account}/{action=Login}/{id?}",
+    defaults: new { area = "ad" });
+
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Home}/{action=Index}/{id?}"
+//);
+//app.MapControllerRoute(
+//    name: "areas",
+//    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+//);
 
 app.Run();
