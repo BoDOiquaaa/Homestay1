@@ -15,10 +15,13 @@ namespace Homestay1.Data
         public DbSet<Homestay> Homestays { get; set; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
        
 
 
 
+=======
+>>>>>>> b99237c0b37875696f307e2ee70969674a07709b
 =======
 >>>>>>> b99237c0b37875696f307e2ee70969674a07709b
         protected override void OnModelCreating(ModelBuilder builder)
