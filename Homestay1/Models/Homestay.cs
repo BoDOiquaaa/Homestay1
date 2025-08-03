@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Homestay1.Models
@@ -23,6 +24,7 @@ namespace Homestay1.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+        [ValidateNever]
         public ICollection<Room> Rooms { get; set; }
     }
 }
