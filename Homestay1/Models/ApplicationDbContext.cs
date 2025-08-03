@@ -14,6 +14,9 @@ namespace Homestay1.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Homestay> Homestays { get; set; }
 
+       
+
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

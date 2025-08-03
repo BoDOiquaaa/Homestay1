@@ -28,5 +28,8 @@ namespace Homestay1.Models.Entities
 
         [ForeignKey(nameof(RoleID))]
         public Role Role { get; set; }
+
+      
+
     }
 }

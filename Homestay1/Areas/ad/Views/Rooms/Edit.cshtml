@@ -1,0 +1,83 @@
+﻿@model Homestay1.Models.Room
+@{
+    ViewData["Title"] = "Sửa Phòng";
+    Layout = "_AdminLayout";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form id="editForm" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="RoomID" value="@Model.RoomID" />
+
+    <div class="mb-3">
+        <label class="form-label">Tên phòng</label>
+        <input id="RoomName" value="@Model.RoomName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Giá mỗi đêm</label>
+        <input id="PricePerNight" type="number" value="@Model.PricePerNight" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Trạng thái</label>
+        <input id="Status" value="@Model.Status" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Homestay</label>
+        @Html.DropDownList("HomestayID", (SelectList)ViewBag.Homestays, "Chọn homestay", new { @class = "form-control", id = "HomestayID" })
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Ảnh hiện tại</label><br />
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" style="max-width: 200px;" />
+        }
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Chọn ảnh mới (nếu muốn)</label>
+        <input type="file" id="ImageFile" class="form-control" accept="image/*" />
+    </div>
+    <button id="updateRoomBtn" type="button" class="btn btn-primary">Lưu</button>
+    <a href="@Url.Action("Index", "Rooms", new { area = "Ad" })" class="btn btn-secondary">Hủy</a>
+</form>
+
+@section Scripts {
+    <script>
+
+        document.getElementById('updateRoomBtn').addEventListener('click', async function () {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const data = new FormData();
+                data.append("RoomID", document.getElementById("RoomID").value);
+                data.append("RoomName", document.getElementById("RoomName").value);
+                data.append("PricePerNight", document.getElementById("PricePerNight").value);
+                data.append("Status", document.getElementById("Status").value);
+                data.append("HomestayID", document.getElementById("HomestayID").value);
+
+                const imageFile = document.getElementById("ImageFile").files[0];
+                if (imageFile) {
+                    data.append("ImageFile", imageFile);
+                }
+
+                try {
+                    const response = await fetch('@Url.Action("UpdateAjax", "Rooms", new { area = "Ad" })', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        },
+                        body: data
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Cập nhật thành công');
+                        window.location.href = '@Url.Action("Index", "Rooms", new { area = "Ad" })';
+                    } else {
+                        alert('Lỗi: ' + result.error);
+                    }
+                } catch (err) {
+                    alert("Lỗi hệ thống: " + err.message);
+                }
+            });
+    </script>
+}
+<script>
