@@ -2,7 +2,6 @@
 using Homestay1.Data;
 using Homestay1.Repositories;
 using Homestay1.Repository;
-using HomestayApp.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
