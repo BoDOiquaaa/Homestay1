@@ -203,15 +203,7 @@
     <div class="top-header">
         <div class="container">
             <a href="#">🇻🇳</a>
-            <!-- Sau -->
-            <a asp-area="ad"
-               asp-controller="Account"
-               asp-action="Login">
-                Thành viên
-            </a>
-
-
-
+            <a href="#">Thành viên</a>
         </div>
     </div>
 
@@ -228,7 +220,7 @@
                 <a asp-page="/Events/Index">---</a>
                 <a asp-page="/Rewards/Index">---</a>
             </div>
-            <button class="btn btn-book">Đặt ngay</button>
+<a class="btn btn-book" asp-controller="Booking" asp-action="Create">Đặt ngay</a>
         </div>
     </nav>
 
