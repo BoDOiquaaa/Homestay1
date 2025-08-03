@@ -6,25 +6,22 @@ namespace Homestay1.ViewModels
     {
         public int? UserID { get; set; }
 
-        [Display(Name = "Vai trò")]
-        public int RoleID { get; set; } // Không required attribute, để controller tự validate
+        [Required(ErrorMessage = "Vui lòng chọn vai trò")]
+        public int RoleID { get; set; }
 
-        [Display(Name = "Họ và tên")]
-        [StringLength(100, ErrorMessage = "Họ và tên không được vượt quá 100 ký tự")]
-        public string? FullName { get; set; }
+        [Required(ErrorMessage = "Vui lòng nhập họ và tên")]
+        [StringLength(100, ErrorMessage = "Họ tên không được quá 100 ký tự")]
+        public string FullName { get; set; } = string.Empty;
 
-        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Vui lòng nhập email")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        [StringLength(100, ErrorMessage = "Email không được vượt quá 100 ký tự")]
-        public string? Email { get; set; }
+        [StringLength(150, ErrorMessage = "Email không được quá 150 ký tự")]
+        public string Email { get; set; } = string.Empty;
 
-        [Display(Name = "Mật khẩu")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự")]
-        public string? Password { get; set; }
-
-        [Display(Name = "Số điện thoại")]
-        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
-        [StringLength(20, ErrorMessage = "Số điện thoại không được vượt quá 20 ký tự")]
+        [StringLength(20, ErrorMessage = "Số điện thoại không được quá 20 ký tự")]
         public string? Phone { get; set; }
+
+        // Chỉ dùng khi tạo mới user
+        public string? Password { get; set; }
     }
 }

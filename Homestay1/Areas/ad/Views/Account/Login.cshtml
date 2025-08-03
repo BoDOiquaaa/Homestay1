@@ -1,55 +1,47 @@
-﻿@{
+﻿@model Homestay1.ViewModels.LoginViewModel
+@{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Đăng nhập";
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<div id="alert-placeholder"></div>
-
 <form id="loginForm">
-    @Html.AntiForgeryToken()
     <div class="mb-3">
-        <label for="Email" class="form-label">Email</label>
-        <input id="Email" name="Email" type="email" class="form-control" />
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label for="Password" class="form-label">Mật khẩu</label>
-        <input id="Password" name="Password" type="password" class="form-control" />
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Đăng nhập</button>
 </form>
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-        $(function() {
-            $('#loginForm').submit(function(e) {
-                e.preventDefault();
-                var vm = { Email: $('#Email').val(), Password: $('#Password').val() };
-                var token = $('input[name="__RequestVerificationToken"]').val();
-                $.ajax({
-                    url: '@Url.Action("LoginAjax", "Account", new { area = "ad" })',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    headers: { 'RequestVerificationToken': token },
-                    data: JSON.stringify(vm),
-                    success: function(response) {
-                        $('#alert-placeholder').empty();
-                        if (response.success) {
-                            window.location = response.redirectUrl;
-                        } else {
-                            response.errors.forEach(function(err) {
-                                $('#alert-placeholder').append('<div class="alert alert-danger">' + err + '</div>');
-                            });
-                        }
-                    },
-                    error: function() {
-                        $('#alert-placeholder').html('<div class="alert alert-danger">Đã có lỗi xảy ra.</div>');
+        $("#loginForm").submit(function (e) {
+            e.preventDefault();
+            var data = {
+                Email: $("#Email").val(),
+                Password: $("#Password").val()
+            };
+            $.ajax({
+                url: '@Url.Action("LoginAjax", "Account", new { area = "ad" })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    if (res.success) {
+                        window.location = res.redirectUrl;
+                    } else {
+                        alert(res.errors.join("\n"));
                     }
-                });
+                }
             });
         });
     </script>
 }
-

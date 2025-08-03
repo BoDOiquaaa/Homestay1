@@ -23,11 +23,41 @@ namespace Homestay1.Areas.ad.Controllers
         /// <summary>
         /// Đổ danh sách Roles từ DB vào ViewBag.Roles
         /// </summary>
-        private async Task PopulateRolesAsync()
+        private async Task PopulateRolesAsync(int? selectedRoleID = null)
         {
-            var allRoles = await _db.Roles.OrderBy(r => r.RoleName).ToListAsync();
-            Console.WriteLine("🔎 Roles đổ ra view: " + string.Join(", ", allRoles.Select(r => r.RoleName)));
-            ViewBag.Roles = new SelectList(allRoles, "RoleID", "RoleName");
+            try
+            {
+                var allRoles = await _db.Roles.OrderBy(r => r.RoleName).ToListAsync();
+
+                System.Diagnostics.Debug.WriteLine($"🔎 PopulateRoles - Found {allRoles.Count} roles");
+                System.Diagnostics.Debug.WriteLine($"🔎 Selected RoleID: {selectedRoleID}");
+
+                foreach (var role in allRoles)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Role: ID={role.RoleID}, Name={role.RoleName}");
+                }
+
+                // Tạo SelectList với selectedValue
+                if (selectedRoleID.HasValue)
+                {
+                    ViewBag.Roles = new SelectList(allRoles, "RoleID", "RoleName", selectedRoleID.Value);
+                    System.Diagnostics.Debug.WriteLine($"✅ ViewBag.Roles created with selected value: {selectedRoleID.Value}");
+                }
+                else
+                {
+                    ViewBag.Roles = new SelectList(allRoles, "RoleID", "RoleName");
+                    System.Diagnostics.Debug.WriteLine("✅ ViewBag.Roles created without selected value");
+                }
+
+                // Debug: kiểm tra SelectList
+                var selectList = (SelectList)ViewBag.Roles;
+                System.Diagnostics.Debug.WriteLine($"SelectList SelectedValue: {selectList.SelectedValue}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ ERROR in PopulateRolesAsync: {ex.Message}");
+                ViewBag.Roles = new SelectList(new List<Role>(), "RoleID", "RoleName");
+            }
         }
 
         // GET: /ad/Users/Create
@@ -230,6 +260,7 @@ namespace Homestay1.Areas.ad.Controllers
             }
         }
         // GET: /ad/Users
+        // GET: /ad/Users
         public async Task<IActionResult> Index(string search)
         {
             ViewBag.Search = search;
@@ -237,44 +268,181 @@ namespace Homestay1.Areas.ad.Controllers
             return View(list);
         }
 
+
+        // GET: /ad/Users/Edit/5
         // GET: /ad/Users/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var u = await _repo.GetByIdAsync(id);
-            if (u == null) return NotFound();
-
-            await PopulateRolesAsync();
-            var vm = new UserViewModel
+            try
             {
-                UserID = u.UserID,
-                RoleID = u.RoleID,
-                FullName = u.FullName,
-                Email = u.Email,
-                Phone = u.Phone
-            };
-            return View(vm);
+                System.Diagnostics.Debug.WriteLine($"=== EDIT GET REQUEST ===");
+                System.Diagnostics.Debug.WriteLine($"UserID: {id}");
+
+                if (id <= 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("❌ Invalid UserID");
+                    return BadRequest("ID không hợp lệ");
+                }
+
+                var u = await _repo.GetByIdAsync(id);
+
+                if (u == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ User not found with ID: {id}");
+                    return NotFound($"Không tìm thấy user với ID: {id}");
+                }
+
+                System.Diagnostics.Debug.WriteLine($"✅ User found: {u.FullName} - {u.Email}");
+                System.Diagnostics.Debug.WriteLine($"User RoleID: {u.RoleID}");
+
+                // Populate roles với selected value
+                await PopulateRolesAsync(u.RoleID);
+
+                // Create ViewModel
+                var vm = new UserViewModel
+                {
+                    UserID = u.UserID,
+                    RoleID = u.RoleID,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    Phone = u.Phone
+                };
+
+                System.Diagnostics.Debug.WriteLine($"ViewModel created - UserID: {vm.UserID}, RoleID: {vm.RoleID}");
+
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ ERROR in Edit GET: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ STACK TRACE: {ex.StackTrace}");
+
+                TempData["Error"] = "Có lỗi xảy ra khi tải thông tin user: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
 
+        // POST: /ad/Users/Edit
         // POST: /ad/Users/Edit
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UserViewModel vm)
         {
-            if (!ModelState.IsValid)
+            try
             {
+                // Debug logging
+                System.Diagnostics.Debug.WriteLine($"=== EDIT USER REQUEST ===");
+                System.Diagnostics.Debug.WriteLine($"UserID: {vm.UserID}");
+                System.Diagnostics.Debug.WriteLine($"RoleID: {vm.RoleID}");
+                System.Diagnostics.Debug.WriteLine($"FullName: '{vm.FullName}'");
+                System.Diagnostics.Debug.WriteLine($"Email: '{vm.Email}'");
+                System.Diagnostics.Debug.WriteLine($"Phone: '{vm.Phone}'");
+
+                // Clear ModelState để tránh validation cũ
+                ModelState.Clear();
+
+                // Manual validation
+                var errors = new List<string>();
+
+                if (!vm.UserID.HasValue || vm.UserID <= 0)
+                {
+                    errors.Add("UserID không hợp lệ");
+                    ModelState.AddModelError("UserID", "UserID không hợp lệ");
+                }
+
+                if (vm.RoleID <= 0)
+                {
+                    errors.Add("Vui lòng chọn vai trò");
+                    ModelState.AddModelError("RoleID", "Vui lòng chọn vai trò");
+                }
+
+                if (string.IsNullOrWhiteSpace(vm.FullName))
+                {
+                    errors.Add("Vui lòng nhập họ và tên");
+                    ModelState.AddModelError("FullName", "Vui lòng nhập họ và tên");
+                }
+
+                if (string.IsNullOrWhiteSpace(vm.Email))
+                {
+                    errors.Add("Vui lòng nhập email");
+                    ModelState.AddModelError("Email", "Vui lòng nhập email");
+                }
+
+                // Nếu có lỗi validation
+                if (errors.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Validation failed: {string.Join(", ", errors)}");
+                    await PopulateRolesAsync();
+                    return View(vm);
+                }
+
+                // Validate email format
+                if (!IsValidEmail(vm.Email))
+                {
+                    ModelState.AddModelError("Email", "Email không hợp lệ");
+                    await PopulateRolesAsync();
+                    return View(vm);
+                }
+
+                // Tìm user cần update
+                var u = await _repo.GetByIdAsync(vm.UserID.Value);
+                if (u == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ User not found with ID: {vm.UserID}");
+                    return NotFound();
+                }
+
+                // Check email duplicate (trừ chính user hiện tại)
+                if (await _db.Users.AnyAsync(user => user.Email == vm.Email && user.UserID != vm.UserID))
+                {
+                    ModelState.AddModelError("Email", "Email này đã tồn tại");
+                    await PopulateRolesAsync();
+                    return View(vm);
+                }
+
+                // Check role tồn tại
+                if (!await _db.Roles.AnyAsync(r => r.RoleID == vm.RoleID))
+                {
+                    ModelState.AddModelError("RoleID", "Vai trò không tồn tại");
+                    await PopulateRolesAsync();
+                    return View(vm);
+                }
+
+                // Update thông tin user
+                u.RoleID = vm.RoleID;
+                u.FullName = vm.FullName?.Trim();
+                u.Email = vm.Email?.Trim().ToLower();
+                u.Phone = vm.Phone?.Trim();
+
+                System.Diagnostics.Debug.WriteLine($"Updating user: ID={u.UserID}, Name={u.FullName}, Email={u.Email}");
+
+                // Sử dụng _db.SaveChangesAsync() thay vì _repo.UpdateAsync()
+                _db.Users.Update(u);
+                var result = await _db.SaveChangesAsync();
+
+                System.Diagnostics.Debug.WriteLine($"✅ Update result: {result} rows affected");
+
+                if (result > 0)
+                {
+                    TempData["Success"] = "Cập nhật user thành công!";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("❌ No rows affected during update");
+                    ModelState.AddModelError("", "Không thể cập nhật user");
+                    await PopulateRolesAsync();
+                    return View(vm);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ ERROR in Edit: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ STACK TRACE: {ex.StackTrace}");
+
+                ModelState.AddModelError("", "Có lỗi xảy ra khi cập nhật: " + ex.Message);
                 await PopulateRolesAsync();
                 return View(vm);
             }
-
-            var u = await _repo.GetByIdAsync(vm.UserID.Value);
-            if (u == null) return NotFound();
-
-            u.RoleID = vm.RoleID;
-            u.FullName = vm.FullName;
-            u.Email = vm.Email;
-            u.Phone = vm.Phone;
-
-            await _repo.UpdateAsync(u);
-            return RedirectToAction(nameof(Index));
         }
 
         // POST: /ad/Users/Delete
