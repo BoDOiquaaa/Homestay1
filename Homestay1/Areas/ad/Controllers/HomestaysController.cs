@@ -45,33 +45,57 @@ namespace Homestay1.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(IFormFile? ImageFile)
+        public async Task<IActionResult> Create(
+       [Bind("OwnerID,Name,Address,Description")] Homestay homestay,
+       IFormFile? ImageFile)
         {
-            var homestay = new Homestay
+            if (!ModelState.IsValid)
             {
-                OwnerID = int.Parse(Request.Form["OwnerID"]),
-                Name = Request.Form["Name"],
-                Address = Request.Form["Address"],
-                Description = Request.Form["Description"]
-            };
-            if (ImageFile != null && ImageFile.Length > 0)
-            {
-                var uploads = Path.Combine(_env.WebRootPath, "images");
-                var fileName = Guid.NewGuid() + Path.GetExtension(ImageFile.FileName);
-                var filePath = Path.Combine(uploads, fileName);
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await ImageFile.CopyToAsync(stream);
-                homestay.ImageUrl = "/images/" + fileName;
+                ModelState.Remove("Rooms");
+                var errors = ModelState.Values
+                               .SelectMany(v => v.Errors)
+                               .Select(e => e.ErrorMessage)
+                               .ToArray();
+                return Json(new { success = false, errors });
             }
 
+
+            // Đảm bảo thư mục wwwroot/images tồn tại
+            var uploadsFolder = Path.Combine(_env.WebRootPath, "images");
+            Directory.CreateDirectory(uploadsFolder);
+
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                // Đặt tên file duy nhất
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(ImageFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Ghi file
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await ImageFile.CopyToAsync(stream);
+
+                // Gán URL để lưu vào DB
+                homestay.ImageUrl = $"/images/{fileName}";
+            }
+
+            // Gán ngày tạo rồi lưu DB
+            homestay.CreatedAt = DateTime.Now;
             await _repo.AddAsync(homestay);
 
+            // Nếu AJAX, trả JSON; ngược lại redirect bình thường
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return Json(new { success = true, redirectUrl = Url.Action("Index") });
+            {
+                return Json(new
+                {
+                    success = true,
+                    redirectUrl = Url.Action("Index", "Homestays")
+                });
+            }
 
             TempData["Success"] = "Thêm homestay thành công";
             return RedirectToAction("Index");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)

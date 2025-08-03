@@ -4,50 +4,97 @@
     Layout = "_AdminLayout";
 }
 <h2>@ViewData["Title"]</h2>
-@Html.AntiForgeryToken()
-<div id="create-container">
+
+<form id="createForm">
+    @Html.AntiForgeryToken()
+
     <div class="mb-3">
         <label class="form-label">Owner ID</label>
-        <input id="ownerId" class="form-control" />
+        <input type="number"
+               name="OwnerID"
+               id="ownerId"
+               class="form-control" />
     </div>
     <div class="mb-3">
         <label class="form-label">Name</label>
-        <input id="name" class="form-control" />
+        <input type="text"
+               name="Name"
+               id="name"
+               class="form-control" />
     </div>
     <div class="mb-3">
         <label class="form-label">Address</label>
-        <input id="address" class="form-control" />
+        <input type="text"
+               name="Address"
+               id="address"
+               class="form-control" />
     </div>
     <div class="mb-3">
         <label class="form-label">Description</label>
-        <textarea id="description" class="form-control" rows="4"></textarea>
+        <textarea name="Description"
+                  id="description"
+                  class="form-control"
+                  rows="4"></textarea>
     </div>
     <div class="mb-3">
         <label class="form-label">Chọn hình ảnh</label>
-        <input type="file" id="imageFile" class="form-control" accept="image/*" />
+        <input type="file"
+               name="ImageFile"
+               id="imageFile"
+               class="form-control"
+               accept="image/*" />
     </div>
-    <button id="saveBtn" class="btn btn-primary">Lưu</button>
-    <a href="@Url.Action("Index", "Homestays")" class="btn btn-secondary">Hủy</a>
-</div>
+
+    <button type="button" id="saveBtn" class="btn btn-primary">Lưu</button>
+    <a href="@Url.Action("Index", "Homestays", new { area = "ad" })" class="btn btn-secondary">Hủy</a>
+</form>
 @section Scripts {
     <script>
-        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-        document.getElementById('saveBtn').addEventListener('click', async function() {
-            const data = new FormData();
-            data.append('OwnerID', document.getElementById('ownerId').value);
-            data.append('Name', document.getElementById('name').value);
-            data.append('Address', document.getElementById('address').value);
-            data.append('Description', document.getElementById('description').value);
-            const fileInput = document.getElementById('imageFile');
-            if (fileInput.files.length) data.append('ImageFile', fileInput.files[0]);
-            const res = await fetch('@Url.Action("Create", "Homestays")', {
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+          var form = document.getElementById('createForm');
+          var token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+          var data = new FormData(form);
+
+          try {
+            var res = await fetch(
+              '@Url.Action("Create", "Homestays", new { area = "ad" })',
+              {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'RequestVerificationToken': token },
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'RequestVerificationToken': token
+                },
                 body: data
-            });
-            const payload = await res.json();
-            if (payload.success) window.location = payload.redirectUrl;
-            else alert('Lỗi khi lưu homestay');
+              }
+            );
+
+            // try to parse JSON no matter what…
+            var text = await res.text();
+            let payload;
+            try { payload = JSON.parse(text); }
+            catch {
+              alert(`Server error ${res.status}:\n${text}`);
+              return;
+            }
+
+            // if the action returned ModelState errors
+            if (payload.success === false && payload.errors) {
+              alert("Validation errors:\n" + payload.errors.join("\n"));
+              return;
+            }
+
+            // on success redirect
+            if (payload.success) {
+              window.location = payload.redirectUrl;
+            }
+            else {
+              alert("Unknown server response:\n" + text);
+            }
+          }
+          catch (ex) {
+            console.error(ex);
+            alert("Request failed: " + ex.message);
+          }
         });
     </script>
 }

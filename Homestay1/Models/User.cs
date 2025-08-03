@@ -5,6 +5,7 @@ namespace Homestay1.Models.Entities
 {
     public class User
     {
+        [Required(ErrorMessage = "Vui lòng chọn vai trò")]
         public int UserID { get; set; }
 
         [Required]

@@ -210,17 +210,20 @@
     <!-- Navbar -->
     <nav class="main-nav">
         <div class="container">
-            <a class="logo" asp-area="" asp-page="/Index"><img src="~/images/logo.png" alt="Logo" /></a>
+            <a class="logo" asp-area="" asp-page="/Index">
+                <img src="~/Img/Logo.png" alt="Logo" />
+            </a>
             <div class="menu">
-                <a asp-page="/Hotels/Index">Khách sạn</a>
-                <a asp-page="/Residences/Index">Wink Live®</a>
+                <a asp-page="/Hotels/Index">Homestay</a>
+                <a asp-page="/Residences/Index">Dịch vụ</a>
                 <a asp-page="/Experience/Index">Trải nghiệm</a>
-                <a asp-page="/Events/Index">Sự kiện</a>
-                <a asp-page="/Rewards/Index">Rewards</a>
+                <a asp-page="/Events/Index">---</a>
+                <a asp-page="/Rewards/Index">---</a>
             </div>
             <button class="btn btn-book">Đặt ngay</button>
         </div>
     </nav>
+
 
     <!-- Banner & Search -->
     <section class="banner">
@@ -261,10 +264,9 @@
                 <div class="col-md-2">
                     <h6>Quick Links</h6>
                     <ul>
-                        <li><a asp-page="/Hotels/Index">Hotels</a></li>
-                        <li><a asp-page="/Residences/Index">Wink Live®</a></li>
-                        <li><a asp-page="/Experience/Index">Trải nghiệm</a></li>
-                        <li><a asp-page="/Events/Index">Events</a></li>
+                        <li><a asp-page="/Hotels/Index">Phòng trống hiện có </a></li>
+                        <li><a asp-page="/Residences/Index">Chăm sóc khách hàng</a></li>
+                        <li><a asp-page="/Events/Index">Thông tin ưu đãi</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
