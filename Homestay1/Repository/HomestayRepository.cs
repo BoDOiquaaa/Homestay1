@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HomestayApp.Repositories
+namespace Homestay1.Repositories
 {
     public class HomestayRepository : IHomestayRepository
     {
