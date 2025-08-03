@@ -191,8 +191,13 @@
     </div>
 
     <!-- Homestay Hero Section -->
+    @{
+        var homestayHeroImage = !string.IsNullOrEmpty(Model.ImageUrl)
+        ? $"~/Img/{Model.ImageUrl}"
+        : "~/Img/default-homestay.jpg";
+    }
     <div class="homestay-hero"
-         style="background-image: url('@(Url.Content(Model.ImageUrl ?? "~/Img/default-homestay.jpg"))')">
+         style="background-image: url('@Url.Content(homestayHeroImage)')">
         <div class="hero-overlay">
             <h1 class="homestay-title">@Model.Name</h1>
             <p class="homestay-address">
@@ -228,8 +233,13 @@
                         {
                             <div class="col-md-6">
                                 <div class="room-card">
+                                    @{
+                                        var roomImage = !string.IsNullOrEmpty(room.ImageUrl)
+                                        ? $"~/Img/{room.ImageUrl}"
+                                        : "~/Img/default-room.jpg";
+                                    }
                                     <div class="room-image"
-                                         style="background-image: url('@(Url.Content(room.ImageUrl ?? "~/Img/default-room.jpg"))')">
+                                         style="background-image: url('@Url.Content(roomImage)')">
                                         <div class="room-status @(room.Status.ToLower() == "available" ? "status-available" :
                                                                   room.Status.ToLower() == "booked" ? "status-booked" : "status-maintenance")">
                                             @switch (room.Status.ToLower())
