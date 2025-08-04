@@ -1,5 +1,4 @@
-﻿
-using Homestay1.Data;
+﻿using Homestay1.Data;
 using Homestay1.Repositories;
 using Homestay1.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -23,12 +22,16 @@ builder.Services.AddControllersWithViews();
 // 4. Session & Antiforgery
 builder.Services.AddSession(options =>
 {
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Thay đổi từ Always
+    options.Cookie.SameSite = SameSiteMode.Lax; // Thay đổi từ Strict
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
+
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "RequestVerificationToken";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
 var app = builder.Build();
@@ -36,9 +39,10 @@ var app = builder.Build();
 // 5. Middleware
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("//Error");
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
