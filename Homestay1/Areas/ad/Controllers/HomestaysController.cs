@@ -9,10 +9,12 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Homestay1.Filters;
 
 namespace Homestay1.Controllers
 {
     [Area("ad")]
+    [OwnerAuthorization]
     public class HomestaysController : Controller
     {
         private readonly IHomestayRepository _repo;

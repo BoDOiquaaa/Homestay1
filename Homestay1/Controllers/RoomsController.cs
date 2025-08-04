@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IO;
 using System.Threading.Tasks;
+using Homestay1.Filters;
 
 namespace Homestay1.Areas.Ad.Controllers
 {
     [Area("Ad")]
+    [OwnerAuthorization]
     [Route("Ad/[controller]/[action]/{id?}")]
     public class RoomsController : Controller
     {

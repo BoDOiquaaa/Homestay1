@@ -2,6 +2,7 @@
 using Homestay1.Models.Entities;
 using Homestay1.Repositories;
 using Homestay1.ViewModels;
+using Homestay1.Filters; // ← THÊM USING CHO FILTER
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Homestay1.Areas.ad.Controllers
 {
     [Area("ad")]
+    [OwnerAuthorization] // ← THÊM FILTER ĐỂ KIỂM TRA QUYỀN
     public class UsersController : Controller
     {
         private readonly IUserRepository _repo;
@@ -88,7 +90,6 @@ namespace Homestay1.Areas.ad.Controllers
         }
 
         // POST: /ad/Users/Create
-        // POST: /ad/Users/Create
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserViewModel vm)
         {
@@ -96,6 +97,7 @@ namespace Homestay1.Areas.ad.Controllers
             {
                 // Debug logging
                 System.Diagnostics.Debug.WriteLine($"=== CREATE USER REQUEST ===");
+                System.Diagnostics.Debug.WriteLine($"Current User - UserID: {HttpContext.Session.GetInt32("UserID")}, RoleID: {HttpContext.Session.GetInt32("RoleID")}");
                 System.Diagnostics.Debug.WriteLine($"RoleID: {vm.RoleID}");
                 System.Diagnostics.Debug.WriteLine($"FullName: '{vm.FullName}'");
                 System.Diagnostics.Debug.WriteLine($"Email: '{vm.Email}'");
@@ -259,7 +261,7 @@ namespace Homestay1.Areas.ad.Controllers
                 return false;
             }
         }
-        // GET: /ad/Users
+
         // GET: /ad/Users
         public async Task<IActionResult> Index(string search)
         {
@@ -268,8 +270,6 @@ namespace Homestay1.Areas.ad.Controllers
             return View(list);
         }
 
-
-        // GET: /ad/Users/Edit/5
         // GET: /ad/Users/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
@@ -322,7 +322,6 @@ namespace Homestay1.Areas.ad.Controllers
             }
         }
 
-        // POST: /ad/Users/Edit
         // POST: /ad/Users/Edit
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UserViewModel vm)
@@ -449,8 +448,25 @@ namespace Homestay1.Areas.ad.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _repo.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"=== DELETE USER REQUEST ===");
+                System.Diagnostics.Debug.WriteLine($"UserID to delete: {id}");
+                System.Diagnostics.Debug.WriteLine($"Current User - UserID: {HttpContext.Session.GetInt32("UserID")}, RoleID: {HttpContext.Session.GetInt32("RoleID")}");
+
+                await _repo.DeleteAsync(id);
+
+                System.Diagnostics.Debug.WriteLine("✅ User deleted successfully");
+                TempData["Success"] = "Xóa user thành công!";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ ERROR in Delete: {ex.Message}");
+                TempData["Error"] = "Có lỗi xảy ra khi xóa user: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
 }
