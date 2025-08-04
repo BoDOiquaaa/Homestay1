@@ -588,15 +588,6 @@
                 <a href="#">
 <i class="bi bi-globe"></i>
                     🇻🇳 Tiếng Việt
-                </a>
-                <a asp-area="Identity" asp-page="/Account/Login">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    Đăng nhập
-                </a>
-                <a href="#">
-                    <i class="bi bi-person-circle"></i>
-                    Thành viên
-                </a>
             </div>
         </div>
     </div>
@@ -620,7 +611,7 @@
                     Trải nghiệm
                 </a>
             </div>
-            <a class="btn-book" asp-page="/Booking/Index">
+            <a class="btn-book" asp-controller="Booking" asp-action="Create">
                 <i class="bi bi-calendar-check"></i>
                 Đặt ngay
             </a>
