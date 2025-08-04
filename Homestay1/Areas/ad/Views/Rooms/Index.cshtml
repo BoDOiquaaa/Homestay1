@@ -78,9 +78,7 @@
                         'Content-Type': 'application/json',
                         'RequestVerificationToken': token
                     }
-                });
-
-                if (!response.ok) throw new Error('Lỗi kết nối máy chủ');
+                });if (!response.ok) throw new Error('Lỗi kết nối máy chủ');
 
                 const result = await response.json();
                 if (result.success) {

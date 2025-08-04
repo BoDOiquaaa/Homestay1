@@ -13,6 +13,6 @@ namespace Homestay1.Repositories
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
 
-       
+
     }
 }

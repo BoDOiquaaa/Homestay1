@@ -1,83 +1,92 @@
 ﻿@model Homestay1.Models.Room
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
-    ViewData["Title"] = "Sửa Phòng";
+    ViewData["Title"] = "Sửa phòng";
     Layout = "_AdminLayout";
+    var tokenSet = Antiforgery.GetAndStoreTokens(Context);
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<form id="editForm" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <input type="hidden" id="RoomID" value="@Model.RoomID" />
+<input type="hidden" id="RoomID" value="@Model.RoomID" />
+<input type="hidden" id="RequestVerificationToken" value="@tokenSet.RequestToken" />
 
-    <div class="mb-3">
-        <label class="form-label">Tên phòng</label>
-        <input id="RoomName" value="@Model.RoomName" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Giá mỗi đêm</label>
-        <input id="PricePerNight" type="number" value="@Model.PricePerNight" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Trạng thái</label>
-        <input id="Status" value="@Model.Status" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Homestay</label>
-        @Html.DropDownList("HomestayID", (SelectList)ViewBag.Homestays, "Chọn homestay", new { @class = "form-control", id = "HomestayID" })
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Ảnh hiện tại</label><br />
-        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+<div class="form-group mb-3">
+    <label>Homestay</label>
+    <select id="HomestayID" class="form-control">
+        @foreach (var item in (SelectList)ViewBag.Homestays)
         {
-            <img src="@Model.ImageUrl" style="max-width: 200px;" />
+            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
         }
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Chọn ảnh mới (nếu muốn)</label>
-        <input type="file" id="ImageFile" class="form-control" accept="image/*" />
-    </div>
-    <button id="updateRoomBtn" type="button" class="btn btn-primary">Lưu</button>
-    <a href="@Url.Action("Index", "Rooms", new { area = "Ad" })" class="btn btn-secondary">Hủy</a>
-</form>
+    </select>
+</div>
+
+<div class="form-group mb-3">
+    <label>Tên phòng</label>
+    <input id="RoomName" class="form-control" value="@Model.RoomName" />
+</div>
+
+<div class="form-group mb-3">
+    <label>Giá mỗi đêm</label>
+    <input id="PricePerNight" class="form-control" value="@Model.PricePerNight" />
+</div>
+
+<div class="form-group mb-3">
+    <label>Trạng thái</label>
+    <input id="Status" class="form-control" value="@Model.Status" />
+</div>
+
+<div class="form-group mb-3">
+    <label>Ảnh hiện tại</label>
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+    {
+        <div class="mb-2">
+            <img src="@Model.ImageUrl" alt="Current image" width="200" height="150" style="object-fit:cover;" />
+        </div>
+    }
+    <label>Chọn ảnh mới (tùy chọn)</label>
+    <input id="ImageFile" type="file" class="form-control" accept="image/*" />
+</div>
+
+<button onclick="updateRoom()" class="btn btn-success">Cập nhật</button>
+<a asp-area="Ad" asp-action="Index" class="btn btn-secondary">Hủy</a>
 
 @section Scripts {
     <script>
+        function updateRoom() {
+            var formData = new FormData();
+            formData.append("RoomID", document.getElementById("RoomID").value);
+            formData.append("HomestayID", document.getElementById("HomestayID").value);
+            formData.append("RoomName", document.getElementById("RoomName").value);
+            formData.append("PricePerNight", document.getElementById("PricePerNight").value);
+            formData.append("Status", document.getElementById("Status").value);
 
-        document.getElementById('updateRoomBtn').addEventListener('click', async function () {
-                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                const data = new FormData();
-                data.append("RoomID", document.getElementById("RoomID").value);
-                data.append("RoomName", document.getElementById("RoomName").value);
-                data.append("PricePerNight", document.getElementById("PricePerNight").value);
-                data.append("Status", document.getElementById("Status").value);
-                data.append("HomestayID", document.getElementById("HomestayID").value);
+            var imageFile = document.getElementById("ImageFile").files[0];
+            if (imageFile) {
+                formData.append("ImageFile", imageFile);
+            }
 
-                const imageFile = document.getElementById("ImageFile").files[0];
-                if (imageFile) {
-                    data.append("ImageFile", imageFile);
+            const token = document.getElementById("RequestVerificationToken").value;
+
+            fetch('/Ad/Rooms/UpdateAjax', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert("Cập nhật thành công!");
+                    window.location.href = "/Ad/Rooms/Index?message=edit-success";
+                } else {
+                    alert("Lỗi: " + result.error);
                 }
-
-                try {
-                    const response = await fetch('@Url.Action("UpdateAjax", "Rooms", new { area = "Ad" })', {
-                        method: 'POST',
-                        headers: {
-                            'RequestVerificationToken': token
-                        },
-                        body: data
-                    });
-
-                    const result = await response.json();
-                    if (result.success) {
-                        alert('Cập nhật thành công');
-                        window.location.href = '@Url.Action("Index", "Rooms", new { area = "Ad" })';
-                    } else {
-                        alert('Lỗi: ' + result.error);
-                    }
-                } catch (err) {
-                    alert("Lỗi hệ thống: " + err.message);
-                }
+            })
+            .catch(error => {
+                alert("Lỗi hệ thống: " + error.message);
             });
+        }
     </script>
-}
-<script>
+}   

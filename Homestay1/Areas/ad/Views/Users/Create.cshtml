@@ -1,37 +1,19 @@
-﻿@model Homestay1.Models.Room
+﻿@model Homestay1.ViewModels.UserViewModel
 
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Thêm phòng";
+    ViewData["Title"] = "Thêm User";
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<h2>@ViewData["Title"]</h2>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-=======
-=======
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
 <!-- Alert placeholder for showing errors/success messages -->
 <div id="alert-placeholder"></div>
 
 <form id="createUserForm">
-<<<<<<< HEAD
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
     @Html.AntiForgeryToken()
 
     <div class="mb-3">
-<<<<<<< HEAD
-        <label asp-for="HomestayID" class="form-label">Homestay</label>
-        <select asp-for="HomestayID" asp-items="ViewBag.Homestays" class="form-select">
-            <option value="">-- Chọn homestay --</option>
-=======
-=======
-    @Html.AntiForgeryToken()
-
-    <div class="mb-3">
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
         <label asp-for="RoleID" class="form-label">Vai trò <span class="text-danger">*</span></label>
         <select asp-for="RoleID" class="form-select" id="roleId" required>
             <option value="">-- Chọn vai trò --</option>
@@ -42,49 +24,11 @@
                     <option value="@role.RoleID">@role.RoleName</option>
                 }
             }
-<<<<<<< HEAD
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
-=======
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
         </select>
-        <span asp-validation-for="HomestayID" class="text-danger"></span>
+        <span asp-validation-for="RoleID" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <label asp-for="RoomName" class="form-label">Tên phòng</label>
-        <input asp-for="RoomName" class="form-control" placeholder="Nhập tên phòng" />
-        <span asp-validation-for="RoomName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PricePerNight" class="form-label">Giá mỗi đêm</label>
-        <input asp-for="PricePerNight" class="form-control" placeholder="Nhập giá mỗi đêm" />
-        <span asp-validation-for="PricePerNight" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Status" class="form-label">Trạng thái</label>
-        <select asp-for="Status" class="form-select">
-            <option value="">-- Chọn trạng thái --</option>
-            <option value="Available">Còn trống</option>
-            <option value="Occupied">Đã đặt</option>
-            <option value="Maintenance">Bảo trì</option>
-        </select>
-        <span asp-validation-for="Status" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ImageUrl" class="form-label">Link ảnh</label>
-        <input asp-for="ImageUrl" class="form-control" placeholder="Dán link ảnh phòng" />
-        <span asp-validation-for="ImageUrl" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i> Lưu</button>
-=======
-=======
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
         <label asp-for="FullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
         <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên" id="fullName" required />
         <span asp-validation-for="FullName" class="text-danger"></span>
@@ -112,10 +56,6 @@
         <span id="saveSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
         Lưu
     </button>
-<<<<<<< HEAD
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
-=======
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
     <a asp-action="Index" class="btn btn-secondary">Hủy</a>
 </form>
 

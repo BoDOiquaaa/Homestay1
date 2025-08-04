@@ -14,16 +14,6 @@ namespace Homestay1.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Homestay> Homestays { get; set; }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-       
-
-
-
-=======
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
-=======
->>>>>>> b99237c0b37875696f307e2ee70969674a07709b
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -38,10 +28,11 @@ namespace Homestay1.Data
                 entity.Property(h => h.MapUrl).HasMaxLength(500); // Cấu hình cho MapUrl
                 entity.Property(h => h.CreatedAt).HasDefaultValueSql("GETDATE()");
 
-                // Quan hệ với Room
+                // Quan hệ với Room - CASCADE DELETE
                 entity.HasMany(h => h.Rooms)
                       .WithOne(r => r.Homestay)
-                      .HasForeignKey(r => r.HomestayID);
+                      .HasForeignKey(r => r.HomestayID)
+                      .OnDelete(DeleteBehavior.Cascade); // Thêm cascade delete
             });
 
             // Cấu hình cho bảng Room
@@ -52,9 +43,41 @@ namespace Homestay1.Data
                 entity.Property(r => r.PricePerNight).HasColumnType("decimal(10,2)");
                 entity.Property(r => r.Status).HasMaxLength(20).HasDefaultValue("Available");
                 entity.Property(r => r.ImageUrl).HasMaxLength(255);
+
+                // Cấu hình foreign key constraint
+                entity.HasOne(r => r.Homestay)
+                      .WithMany(h => h.Rooms)
+                      .HasForeignKey(r => r.HomestayID)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // seed roles nếu cần
+            // Cấu hình cho bảng User
+            builder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.UserID);
+                entity.Property(u => u.FullName).HasMaxLength(100).IsRequired();
+                entity.Property(u => u.Email).HasMaxLength(150).IsRequired();
+                entity.HasIndex(u => u.Email).IsUnique(); // Email unique constraint
+                entity.Property(u => u.Password).IsRequired();
+                entity.Property(u => u.Phone).HasMaxLength(20);
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETDATE()");
+
+                // Quan hệ với Role
+                entity.HasOne(u => u.Role)
+                      .WithMany(r => r.Users)
+                      .HasForeignKey(u => u.RoleID)
+                      .OnDelete(DeleteBehavior.Restrict); // Không cho phép xóa role nếu còn user
+            });
+
+            // Cấu hình cho bảng Role
+            builder.Entity<Role>(entity =>
+            {
+                entity.HasKey(r => r.RoleID);
+                entity.Property(r => r.RoleName).HasMaxLength(50).IsRequired();
+                entity.HasIndex(r => r.RoleName).IsUnique(); // Role name unique
+            });
+
+            // Seed roles nếu cần
             builder.Entity<Role>().HasData(
                 new Role { RoleID = 1, RoleName = "Admin" },
                 new Role { RoleID = 2, RoleName = "Owner" },

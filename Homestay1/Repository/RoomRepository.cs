@@ -69,7 +69,7 @@ namespace Homestay1.Repositories
             await _context.SaveChangesAsync();
         }
 
-        
+
 
         public async Task<bool> ExistsAsync(int id)
         {
