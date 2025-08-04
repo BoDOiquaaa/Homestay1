@@ -30,12 +30,14 @@ namespace Homestay1.Repositories
         {
             return await _context.Homestays.FindAsync(id);
         }
+
         public async Task<Homestay> GetByIdWithRoomsAsync(int id)
         {
             return await _context.Homestays
                 .Include(h => h.Rooms)
                 .FirstOrDefaultAsync(h => h.HomestayID == id);
         }
+
         public async Task AddAsync(Homestay homestay)
         {
             homestay.CreatedAt = DateTime.Now;
@@ -51,11 +53,39 @@ namespace Homestay1.Repositories
 
         public async Task DeleteAsync(int id)
         {
-            var entity = await _context.Homestays.FindAsync(id);
-            if (entity != null)
+            try
             {
-                _context.Homestays.Remove(entity);
-                await _context.SaveChangesAsync();
+                // Lấy homestay cùng với các room liên quan
+                var homestay = await _context.Homestays
+                    .Include(h => h.Rooms)
+                    .FirstOrDefaultAsync(h => h.HomestayID == id);
+
+                if (homestay != null)
+                {
+                    // Log thông tin trước khi xóa
+                    System.Diagnostics.Debug.WriteLine($"Deleting homestay: {homestay.Name}");
+                    System.Diagnostics.Debug.WriteLine($"Number of rooms to delete: {homestay.Rooms?.Count ?? 0}");
+
+                    // Xóa homestay (rooms sẽ được xóa tự động bởi cascade delete)
+                    _context.Homestays.Remove(homestay);
+                    var result = await _context.SaveChangesAsync();
+
+                    System.Diagnostics.Debug.WriteLine($"Delete operation affected {result} records");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Homestay with ID {id} not found");
+                }
+            }
+            catch (DbUpdateException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Database error when deleting homestay: {ex.Message}");
+                throw new Exception("Không thể xóa homestay. Có thể đang có dữ liệu liên quan khác (booking, etc.).", ex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"General error when deleting homestay: {ex.Message}");
+                throw new Exception("Lỗi không xác định khi xóa homestay: " + ex.Message, ex);
             }
         }
     }
